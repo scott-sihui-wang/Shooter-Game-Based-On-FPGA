@@ -1,0 +1,66 @@
+--------------------------------------------------------------------------------------
+Timing Analyzer Summary
+--------------------------------------------------------------------------------------
+
+Type           : Worst-case tsu
+Slack          : N/A
+Required Time  : None
+Actual Time    : 9.666 ns
+From           : sw7
+To             : displayer:u7|COLR_OUT[5]
+From Clock     : --
+To Clock       : clk
+Failed Paths   : 0
+
+Type           : Worst-case tco
+Slack          : N/A
+Required Time  : None
+Actual Time    : 9.840 ns
+From           : displayer:u7|ROW_OUT[0]
+To             : row[0]
+From Clock     : clk
+To Clock       : --
+Failed Paths   : 0
+
+Type           : Worst-case th
+Slack          : N/A
+Required Time  : None
+Actual Time    : -1.095 ns
+From           : btn1
+To             : buttonProcessor:u8|BTN_SHOOT
+From Clock     : --
+To Clock       : clk
+Failed Paths   : 0
+
+Type           : Clock Setup: 'clk'
+Slack          : N/A
+Required Time  : None
+Actual Time    : 46.76 MHz ( period = 21.387 ns )
+From           : systemController:u1|FLG_CHK
+To             : displayer:u7|COLR_OUT[5]
+From Clock     : clk
+To Clock       : clk
+Failed Paths   : 0
+
+Type           : Clock Hold: 'clk'
+Slack          : Not operational: Clock Skew > Data Delay
+Required Time  : None
+Actual Time    : N/A
+From           : autoCheck:u2|CMP_CHK
+To             : systemController:u1|FLG_CHK
+From Clock     : clk
+To Clock       : clk
+Failed Paths   : 6
+
+Type           : Total number of failed paths
+Slack          : 
+Required Time  : 
+Actual Time    : 
+From           : 
+To             : 
+From Clock     : 
+To Clock       : 
+Failed Paths   : 6
+
+--------------------------------------------------------------------------------------
+

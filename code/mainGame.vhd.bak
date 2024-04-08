@@ -1,0 +1,154 @@
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_UNSIGNED;
+USE IEEE.STD_LOGIC_ARITH;
+
+ENTITY mainGame IS
+	PORT(
+		CLK_GAME:IN STD_LOGIC;
+		EN_GAME:IN STD_LOGIC;
+		RST_GAME:IN STD_LOGIC;
+		RESUME_GAME:IN STD_LOGIC;
+		BTN_SHOOT:IN STD_LOGIC;
+		BTN_SPEED_DOWN:IN STD_LOGIC;
+		BTN_SPEED_UP:IN STD_LOGIC;
+		CMP_GAME:OUT STD_LOGIC:='0';
+		STATE_GAME_TARGET:OUT INTEGER RANGE 0 TO 9:=0;
+		STATE_GAME_BULLET:OUT INTEGER RANGE 0 TO 6:=0;
+		STATE_GAME_TIME_LEFT:OUT INTEGER RANGE 0 TO 40:=40;
+		STATE_GAME_SCORE:OUT INTEGER RANGE 0 TO 19:=0;
+		STATE_GAME_SHOOT:OUT STD_LOGIC:='0';
+		FLG_BULLET_MISS:OUT STD_LOGIC:='0';
+		FLG_BULLET_GET:OUT STD_LOGIC:='0'
+	);
+END ENTITY;
+
+ARCHITECTURE game OF mainGame IS
+
+	SIGNAL clkSecondsCnt:INTEGER RANGE 0 TO 49999999:=0;
+	SIGNAL clkTargetCnt:INTEGER RANGE 0 TO 49999999:=0;
+	SIGNAL clkBulletCnt:INTEGER RANGE 0 TO 4999999:=0;
+	SIGNAL clkButtonCheckCnt:INTEGER RANGE 0 TO 999999:=0;
+	SIGNAL targetSpeed:INTEGER RANGE 0 TO 49999999:=4999999;
+	SIGNAL targetPosition:INTEGER RANGE 0 TO 9:=0;
+	SIGNAL bulletPosition:INTEGER RANGE 0 TO 6:=0;
+	SIGNAL timeLeft:INTEGER RANGE 0 TO 40:=40;
+	SIGNAL score:INTEGER RANGE 0 TO 19:=0;
+	SIGNAL flagBullet:STD_LOGIC:='0';
+
+BEGIN
+	
+	PROCESS(CLK_GAME)
+	BEGIN
+		IF CLK_GAME'EVENT AND CLK_GAME='1' THEN
+			IF RST_GAME='0' THEN
+				CMP_GAME<='0';
+				clkSecondsCnt<=0;
+				clkTargetCnt<=0;
+				clkBulletCnt<=0;
+				clkButtonCheckCnt<=0;
+				targetSpeed<=4999999;
+				targetPosition<=0;
+				bulletPosition<=0;
+				timeLeft<=40;
+				score<=0;
+				flagBullet<='0';
+			ELSIF RESUME_GAME='1' THEN
+				CMP_GAME<='0';
+				clkSecondsCnt<=0;
+				clkTargetCnt<=0;
+				clkBulletCnt<=0;
+				clkButtonCheckCnt<=0;
+				targetSpeed<=4999999;
+				targetPosition<=0;
+				bulletPosition<=0;
+				timeLeft<=40;
+				score<=0;
+				flagBullet<='0';
+			ELSIF EN_GAME='0' THEN
+				clkSecondsCnt<=0;
+				clkTargetCnt<=0;
+				clkBulletCnt<=0;
+				clkButtonCheckCnt<=0;
+				STATE_GAME_TARGET<=targetPosition;
+				STATE_GAME_BULLET<=bulletPosition;
+				STATE_GAME_TIME_LEFT<=timeLeft;
+				STATE_GAME_SCORE<=score;
+			ELSE
+				IF clkSecondsCnt=49999999 THEN
+					clkSecondsCnt<=0;
+					IF timeLeft>0 THEN
+						timeLeft<=timeLeft-1;
+					END IF;
+				ELSE
+					clkSecondsCnt<=clkSecondsCnt+1;
+				END IF;
+				IF clkTargetCnt=targetSpeed THEN
+					clkTargetCnt<=0;
+					IF targetPosition=9 THEN
+						targetPosition<=0;
+					ELSE
+						targetPosition<=targetPosition+1;
+					END IF;
+				ELSE
+					clkTargetCnt<=clkTargetCnt+1;
+				END IF;
+				IF flagBullet='1' THEN
+					IF clkBulletCnt=4999999 THEN
+						clkBulletCnt<=0;
+						IF bulletPosition<5 THEN
+							bulletPosition<=bulletPosition+1;
+						ELSIF bulletPosition=5 THEN
+							bulletPosition<=6;
+							IF targetPosition=3 OR targetPosition=5 THEN
+								score<=score+2;
+								FLG_BULLET_GET<='1';
+								FLG_BULLET_MISS<='0';
+							ELSIF targetPosition=4 THEN
+								score<=score+3;
+								FLG_BULLET_GET<='1';
+								FLG_BULLET_MISS<='0';
+							ELSE
+								FLG_BULLET_GET<='0';
+								FLG_BULLET_MISS<='1';
+							END IF;
+						ELSE
+							flagBullet<='0';
+							bulletPosition<=0;
+						END IF;
+					ELSE
+						clkBulletCnt<=clkBulletCnt+1;
+					END IF;
+				ELSE
+					clkBulletCnt<=0;
+					
+				END IF;
+				IF clkButtonCheckCnt=999999 THEN
+					clkButtonCheckCnt<=0;
+					IF BTN_SPEED_UP='1' THEN
+						IF targetSpeed>100000 THEN
+							targetSpeed<=targetSpeed-100000;
+						END IF;
+					ELSIF BTN_SPEED_DOWN='1' THEN
+						IF targetSpeed<24899999 THEN
+							targetSpeed<=targetSpeed+100000;
+						END IF;
+					ELSIF flagBullet='0' AND BTN_SHOOT='1' THEN
+						flagBullet<='1';
+					END IF;
+				ELSE
+					clkButtonCheckCnt<=clkButtonCheckCnt+1;
+				END IF;
+				IF timeLeft=0 OR score>=15 THEN
+					CMP_GAME<='1';
+				END IF;
+				STATE_GAME_TARGET<=targetPosition;
+				STATE_GAME_BULLET<=bulletPosition;
+				STATE_GAME_TIME_LEFT<=timeLeft;
+				STATE_GAME_SCORE<=score;
+				STATE_GAME_SHOOT<=flagBullet;
+			END IF;
+		END IF;
+	END PROCESS;
+	
+END game;

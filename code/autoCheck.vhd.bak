@@ -1,0 +1,57 @@
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_UNSIGNED;
+USE IEEE.STD_LOGIC_ARITH;
+
+ENTITY autoCheck IS
+	PORT(
+		CLK_CHK:IN STD_LOGIC;
+		EN_CHK:IN STD_LOGIC;
+		RST_CHK:IN STD_LOGIC;
+		CMP_CHK:OUT STD_LOGIC:='0';
+		STATE_CHK:OUT INTEGER RANGE 0 TO 7:=0;
+		STATE_CHK_SCAN:OUT INTEGER RANGE 0 TO 2:=0
+	);
+END ENTITY;
+
+ARCHITECTURE check OF autoCheck IS
+	
+	SIGNAL clkCnt:INTEGER RANGE 0 TO 9999999;
+	SIGNAL rowCnt:INTEGER RANGE 0 TO 7;
+	SIGNAL scanCnt:INTEGER RANGE 0 TO 3;
+	
+BEGIN
+	
+	PROCESS(CLK_CHK)
+	BEGIN
+		IF CLK_CHK'EVENT AND CLK_CHK='1' THEN
+			IF RST_CHK='0' THEN
+				CMP_CHK<='0';
+			ELSIF RST_CHK='1' AND scanCnt=3 THEN
+				CMP_CHK<='1';
+			END IF;
+			IF EN_CHK='0' THEN
+				clkCnt<=0;
+				rowCnt<=0;
+				scanCnt<=0;
+			ELSE
+				IF clkCnt=9999999 THEN
+					clkCnt<=0;
+					IF rowCnt=7 THEN
+						rowCnt<=0;
+						IF scanCnt<3 THEN
+							scanCnt<=scanCnt+1;
+						END IF;
+					ELSE
+						rowCnt<=rowCnt+1;
+					END IF;
+				ELSE
+					clkCnt<=clkCnt+1;
+				END IF;
+				STATE_CHK<=rowCnt;
+				STATE_CHK_SCAN<=scanCnt;
+			END IF;
+		END IF;
+	END PROCESS;
+		
+END check;
